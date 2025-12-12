@@ -32,6 +32,7 @@ class Activity(models.Model):
         ('PROPOSAL','提案中'),
         ('WON','受注'),
         ('LOST','失注'),
+        ('LOST_never','永久失注'),
     )
     #【重要】Customerモデルと1対多で連携
     #顧客が削除されたら、関連する商談履歴も一緒に削除する(CASCADE)
