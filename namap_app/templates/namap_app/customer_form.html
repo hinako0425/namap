@@ -1,0 +1,42 @@
+{% extends 'namap_app/base.html' %}
+{% block title %}{% if object %}編集{% else %}新規登録{% endif %}{% endblock %}
+{% block content %}
+<h1>{% if object %}{{object.company_name}}の編集{% else %}顧客の新規登録{% endif %}</h1>
+<form method="POST">
+    {% csrf_token %}
+    <div class="mb-3">
+        {{ form.company_name.label_tag }}
+        {{ form.company_name }}
+    </div>
+    <div class="mb-3">
+        {{ form.contact_name.label_tag }}
+        {{ form.contact_name }}
+    </div>
+    <div class="mb-3">
+        {{ form.email.label_tag }}
+        {{ form.email }}
+    </div>
+    <div class="mb-3">
+        {{ form.phone.label_tag }}
+        {{ form.phone }}
+    </div>
+    <div class="mb-3">
+        {{ form.user.label_tag }}
+        {{ form.user }}
+    </div>
+    <div class="mb-3">
+        {{ form.tags.label_tag }}
+        {{ form.tags }}
+    </div>
+
+    <button type="submit" class="btn btn-success">保存する</button>
+    <a href="{% url 'customer_list' %}" class="btn btn-outline-secondary">キャンセル</a>
+    </form>
+    <script>document.querySelectorAll('form input,form select,form textarea').forEach(el => {if(el.type !== 'checkbox' && el.type !== 'radio'){
+        el.classList.add('form-control');
+    }});
+    document.querySelectorAll('form select[multiple]').forEach(el => {
+        el.classList.add('form-sselect');
+    })
+</script>
+{% endblock %}

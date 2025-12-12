@@ -1,0 +1,11 @@
+{% extends 'namap_app/base.html' %}{% block title %}顧客削除{% endblock %}
+{% block content %}
+    <h1>{{object.company_name}}を本当に削除しますか？</h1>
+    <p>この操作は元に戻せません。</p>
+
+    <form method="post">
+        {% csrf_token %}
+        <button type="submit" style="color: red;">はい、削除します。</button>
+        <a href="{% url 'customer_detail' object.pk %}">いいえ、キャンセルします。</a>
+    </form>
+{% endblock %}

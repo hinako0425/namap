@@ -1,0 +1,94 @@
+{% extends 'namap_app/base.html' %}{% block title %}{{ customer.company_name }}の詳細{% endblock %}
+{% block content %}
+<h3 class="mt-4">商談履歴</h3>
+
+<div class="card mb-3 bg-light">
+    <div class="card-body">
+        <h6 class="card-title">商談をクイック追加</h6>
+        <form id="activity-form">
+            {% csrf_token %}
+            <input type="hidden" name="customer_id" value="{{ customer.id }}">
+            <div class="row g-2">
+                <div class="col-md-3">
+                    <input type="date" name="activity_date" class="form-control" required>
+                </div>
+                <div class="col-md-3">
+                    <select name="status" class="form-select">
+                        <option value="APPO">アポ</option>
+                        <option value="MEETING">商談中</option>
+                        <option value="PROPOSAL">提案中</option>
+                        <option value="WON">受注</option>
+                        <option value="LOST">失注</option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <input type="text" name="note" class="form-control" placeholder="メモを入力" required>
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-primary w-100">追加</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+<div class="card">
+    <div class="card-body">
+        <ul class="list-group list-group-flush" id="activity-list">
+            {% for activity in customer.activity_set.all|dictsortreversed:"activity_date" %}
+                <li class="list-group-item">
+                    <strong>{{ activity.activity_date }}</strong>
+                    <span class="badge bg-secondary ms-2">{{ activity.get_status_display }}</span>
+                    <br>
+                    {{ activity.note | linebreaksbr }}
+                </li>
+            {% empty %}
+                <li class="list-group-item text-muted" id="no-activity-msg">商談履歴はありません</li>
+                {% endfor %}
+        </ul>
+    </div>
+</div>
+
+<script>
+    document.getElementById('activity-form').addEventListener('submit',function(e){
+        e.preventDefault();
+
+        const form = this;
+        const formData = new FormData(form);
+        const url = "{% url 'ajax_add_activity' %}";
+
+        fetch(url,{
+            method:'POST',
+            body: formData,
+            headers:{
+                'X-Requested-With':'XMLHttpRequest'
+            }
+        })
+        .then(data => {
+            if (!response.ok){
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(data => {
+            const noMsg = document.getElementById('no-activity-msg');
+            if (noMsg) noMsg.remove();
+
+            const list = document.getElementById('activity-list');
+            const newItem = document.createElement('li');
+            newItem.className = 'list-group-item bg-info bg-opacity-10';
+            newItem.innerHTML = `
+                <strong>${data.activity_date}</strong>
+                <span class="badge bg-secondary ms-2">${data.status}</span>
+                <br>
+                ${data.note}
+            `;
+            list.prepend(newItem);
+            form.reset()
+        })
+        .catch(error => {
+            console.error('Error:',error);
+            alert('エラーが発生しました。');
+        });
+    });
+</script>
+{% endblock %}
